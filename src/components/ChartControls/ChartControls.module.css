@@ -34,6 +34,7 @@
     align-items: center;
     gap: 6px;
     font-size: 13px;
+    color: var(--fg);
 }
 
 .segmented {
@@ -50,6 +51,7 @@
     border-radius: 999px;
     font-size: 13px;
     cursor: pointer;
+    color: var(--fg);
 }
 
 .segmentActive {
@@ -64,6 +66,7 @@
     border-radius: 6px;
     border: 1px solid var(--border-color);
     background: var(--input-bg);
+    color: var(--fg);
 }
 
 .button {
@@ -74,4 +77,5 @@
     border: 1px solid var(--border-color);
     background: var(--button-bg);
     cursor: pointer;
+    color: var(--fg);
 }

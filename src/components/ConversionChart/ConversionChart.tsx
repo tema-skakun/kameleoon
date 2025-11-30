@@ -24,6 +24,7 @@ type Props = {
 	aggregation: AggregationMode;
 	brushRange: { startIndex: number; endIndex: number };
 	onBrushChange: (range: { startIndex: number; endIndex: number }) => void;
+	theme: 'light' | 'dark';
 };
 
 const colors = ['#3772ff', '#f97316', '#10b981', '#ec4899', '#a855f7'];
@@ -67,7 +68,10 @@ const CustomTooltip: React.FC<{
 
 					return (
 						<div key={key} className={styles.tooltipRow}>
-							<div className={styles.tooltipColor} style={{ background: item.color }} />
+							<div
+								className={styles.tooltipColor}
+								style={{ background: item.color }}
+							/>
 							<div className={styles.tooltipName}>{variation.name}</div>
 							<div className={styles.tooltipMetrics}>
 								<span>CR: {item.value.toFixed(2)}%</span>
@@ -91,10 +95,11 @@ export const ConversionChart: React.FC<Props> = ({
 																									 aggregation,
 																									 brushRange,
 																									 onBrushChange,
+																									 theme,
 																								 }) => {
 	const visibleData = useMemo(
 		() => data.slice(brushRange.startIndex, brushRange.endIndex + 1),
-		[data, brushRange]
+		[data, brushRange],
 	);
 
 	// Пересчёт домена Y под выбранные варианты и видимый диапазон
@@ -124,6 +129,7 @@ export const ConversionChart: React.FC<Props> = ({
 		return selectedKeys.map((key, index) => {
 			const variation = variations.find((v) => v.key === key);
 			if (!variation) return null;
+
 			const color = colors[index % colors.length];
 
 			if (lineStyle === 'area') {
@@ -159,20 +165,32 @@ export const ConversionChart: React.FC<Props> = ({
 
 	const ChartComponent = lineStyle === 'area' ? AreaChart : LineChart;
 
+	const textColor = theme === 'light' ? '#0f172a' : '#e5e7eb';
+	const gridColor = theme === 'light' ? '#e5e7eb' : '#1f2937';
+
 	return (
 		<div className={styles.wrapper}>
 			<ResponsiveContainer width="100%" height={360}>
-				<ChartComponent data={visibleData} margin={{ top: 20, right: 24, bottom: 40, left: 8 }}>
-					<CartesianGrid strokeDasharray="3 3" vertical={false} />
+				<ChartComponent
+					data={visibleData}
+					margin={{ top: 20, right: 24, bottom: 40, left: 8 }}
+				>
+					<CartesianGrid
+						strokeDasharray="3 3"
+						vertical={false}
+						stroke={gridColor}
+					/>
 					<XAxis
 						dataKey="dateLabel"
 						tickMargin={8}
 						minTickGap={24}
+						tick={{ fill: textColor, fontSize: 12 }}
 					/>
 					<YAxis
 						domain={yDomain}
 						tickFormatter={(v: number) => `${v.toFixed(0)}%`}
 						tickMargin={8}
+						tick={{ fill: textColor, fontSize: 12 }}
 					/>
 					<Tooltip
 						content={
@@ -183,9 +201,9 @@ export const ConversionChart: React.FC<Props> = ({
 								rawParsed={rawParsed}
 							/>
 						}
-						cursor={{ strokeWidth: 1 }} // вертикальная линия
+						cursor={{ strokeWidth: 1 }}
 					/>
-					<Legend />
+					<Legend wrapperStyle={{ color: textColor, fontSize: 12 }} />
 					{renderLines()}
 					<Brush
 						dataKey="dateLabel"

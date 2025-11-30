@@ -7,7 +7,11 @@ import {
 	RawPayload,
 	Variation,
 } from './types';
-import { buildChartData, buildVariations, parseRawData } from './utils/transformData';
+import {
+	buildChartData,
+	buildVariations,
+	parseRawData,
+} from './utils/transformData';
 import { ChartControls } from './components/ChartControls/ChartControls';
 import { ConversionChart } from './components/ConversionChart/ConversionChart';
 import styles from './App.module.css';
@@ -22,24 +26,27 @@ const App: React.FC = () => {
 
 	const variations: Variation[] = useMemo(
 		() => buildVariations(typedRaw.variations),
-		[]
+		[],
 	);
 
 	const parsed: ParsedDataPoint[] = useMemo(
 		() => parseRawData(typedRaw.data, variations),
-		[variations]
+		[variations],
 	);
 
 	const [selectedKeys, setSelectedKeys] = useState<string[]>(
-		() => variations.map((v) => v.key) // по умолчанию все включены
+		() => variations.map((v) => v.key),
 	);
 
 	const allChartData = useMemo(
 		() => buildChartData(parsed, variations, aggregation),
-		[parsed, variations, aggregation]
+		[parsed, variations, aggregation],
 	);
 
-	const [brushRange, setBrushRange] = useState<{ startIndex: number; endIndex: number }>({
+	const [brushRange, setBrushRange] = useState<{
+		startIndex: number;
+		endIndex: number;
+	}>({
 		startIndex: 0,
 		endIndex: allChartData.length - 1,
 	});
@@ -93,7 +100,8 @@ const App: React.FC = () => {
 				<header className={styles.header}>
 					<h1 className={styles.title}>Conversion Rate A/B Testing</h1>
 					<p className={styles.subtitle}>
-						Интерактивная линейная диаграмма коэффициента конверсии по вариантам.
+						Интерактивная линейная диаграмма коэффициента конверсии по
+						вариантам.
 					</p>
 				</header>
 
@@ -106,7 +114,9 @@ const App: React.FC = () => {
 					lineStyle={lineStyle}
 					onLineStyleChange={setLineStyle}
 					theme={theme}
-					onThemeToggle={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+					onThemeToggle={() =>
+						setTheme((t) => (t === 'light' ? 'dark' : 'light'))
+					}
 					onResetZoom={handleResetZoom}
 					onExportPng={handleExportPng}
 				/>
@@ -121,6 +131,7 @@ const App: React.FC = () => {
 						aggregation={aggregation}
 						brushRange={brushRange}
 						onBrushChange={setBrushRange}
+						theme={theme}
 					/>
 				</div>
 			</div>
