@@ -11,12 +11,20 @@ import {
 	YAxis,
 	Legend,
 } from 'recharts';
-import { AggregationMode, ChartPoint, LineStyle, ParsedDataPoint, Variation } from '../../types';
+import type { TooltipProps } from 'recharts';
+import type { ValueType, NameType } from 'recharts/types/component/DefaultTooltipContent';
+import {
+	AggregationMode,
+	ChartPoint,
+	LineStyle,
+	ParsedDataPoint,
+	Variation,
+} from '../../types';
 import styles from './ConversionChart.module.css';
 
 type Props = {
 	data: ChartPoint[];
-	rawParsed: ParsedDataPoint[];
+	sourceParsed: ParsedDataPoint[]; // источник, из которого строилась диаграмма
 	variations: Variation[];
 	selectedKeys: string[];
 	lineStyle: LineStyle;
@@ -27,53 +35,53 @@ type Props = {
 
 const colors = ['#3772ff', '#f97316', '#10b981', '#ec4899', '#a855f7'];
 
-type TooltipPayload = {
-	dataKey: string;
-	value: number;
-	color: string;
-	name: string;
-};
-
-const CustomTooltip: React.FC<{
-	active?: boolean;
-	label?: string;
-	payload?: TooltipPayload[];
+type CustomTooltipProps = TooltipProps<ValueType, NameType> & {
 	selectedKeys: string[];
 	variations: Variation[];
 	aggregation: AggregationMode;
-	rawParsed: ParsedDataPoint[];
-}> = ({ active, label, payload, selectedKeys, variations, aggregation, rawParsed }) => {
+	sourceParsed: ParsedDataPoint[];
+};
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({
+																											 active,
+																											 payload,
+																											 selectedKeys,
+																											 variations,
+																											 aggregation,
+																											 sourceParsed,
+																										 }) => {
 	if (!active || !payload || payload.length === 0) return null;
 
-	const first = payload[0] as any;
-	const index = first?.payload?.index ?? 0;
-	const raw = rawParsed[index];
+	const first = payload[0];
+	const index = (first?.payload as ChartPoint | undefined)?.index ?? 0;
+	const raw = sourceParsed[index];
+
+	if (!raw) return null;
 
 	return (
 		<div className={styles.tooltip}>
 			<div className={styles.tooltipHeader}>
-				{aggregation === 'daily'
-					? `Дата: ${raw?.date}`
-					: `Период: ${raw?.date}`}
+				{aggregation === 'daily' ? `Дата: ${raw.date}` : `Период: ${raw.date}`}
 			</div>
 			<div className={styles.tooltipBody}>
 				{selectedKeys.map((key) => {
 					const variation = variations.find((v) => v.key === key);
-					const item = payload.find((p) => p.dataKey === key);
+					const item = payload.find((p) => p?.dataKey === key);
+
 					if (!variation || !item || item.value == null) return null;
 
-					const visits = raw?.visits?.[key] ?? 0;
-					const conv = raw?.conversions?.[key] ?? 0;
+					const visits = raw.visits?.[key] ?? 0;
+					const conv = raw.conversions?.[key] ?? 0;
 
 					return (
 						<div key={key} className={styles.tooltipRow}>
 							<div
 								className={styles.tooltipColor}
-								style={{ background: item.color }}
+								style={{ background: item.color as string }}
 							/>
 							<div className={styles.tooltipName}>{variation.name}</div>
 							<div className={styles.tooltipMetrics}>
-								<span>CR: {item.value.toFixed(2)}%</span>
+								<span>CR: {(item.value as number).toFixed(2)}%</span>
 								<span>Посещения: {visits}</span>
 								<span>Конверсии: {conv}</span>
 							</div>
@@ -87,7 +95,7 @@ const CustomTooltip: React.FC<{
 
 export const ConversionChart: React.FC<Props> = ({
 																									 data,
-																									 rawParsed,
+																									 sourceParsed,
 																									 variations,
 																									 selectedKeys,
 																									 lineStyle,
@@ -108,6 +116,7 @@ export const ConversionChart: React.FC<Props> = ({
 		visibleData.forEach((point) => {
 			selectedKeys.forEach((key) => {
 				const value = point[key];
+
 				if (typeof value === 'number') {
 					if (value < min) min = value;
 					if (value > max) max = value;
@@ -120,11 +129,12 @@ export const ConversionChart: React.FC<Props> = ({
 		}
 
 		const padding = (max - min) * 0.1 || 1;
+
 		return [Math.max(0, min - padding), max + padding];
 	}, [visibleData, selectedKeys]);
 
-	const renderLines = () => {
-		return selectedKeys.map((key, index) => {
+	const renderLines = () =>
+		selectedKeys.map((key, index) => {
 			const variation = variations.find((v) => v.key === key);
 			if (!variation) return null;
 
@@ -159,7 +169,6 @@ export const ConversionChart: React.FC<Props> = ({
 				/>
 			);
 		});
-	};
 
 	const ChartComponent = lineStyle === 'area' ? AreaChart : LineChart;
 
@@ -173,11 +182,7 @@ export const ConversionChart: React.FC<Props> = ({
 					data={visibleData}
 					margin={{ top: 20, right: 24, bottom: 40, left: 8 }}
 				>
-					<CartesianGrid
-						strokeDasharray="3 3"
-						vertical={false}
-						stroke={gridColor}
-					/>
+					<CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
 					<XAxis
 						dataKey="dateLabel"
 						tickMargin={8}
@@ -196,7 +201,7 @@ export const ConversionChart: React.FC<Props> = ({
 								selectedKeys={selectedKeys}
 								variations={variations}
 								aggregation={aggregation}
-								rawParsed={rawParsed}
+								sourceParsed={sourceParsed}
 							/>
 						}
 						cursor={{ strokeWidth: 1 }}
