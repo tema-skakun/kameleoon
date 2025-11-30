@@ -79,3 +79,19 @@
     cursor: pointer;
     color: var(--fg);
 }
+
+.zoomRow {
+    display: flex;
+    gap: 6px;
+}
+
+.buttonSmall {
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--button-bg);
+    cursor: pointer;
+    color: var(--fg);
+    flex: 1;
+}

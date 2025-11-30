@@ -6,16 +6,16 @@ type Props = {
 	variations: Variation[];
 	selectedKeys: string[];
 	onToggleVariation: (key: string) => void;
-
 	aggregation: AggregationMode;
 	onAggregationChange: (mode: AggregationMode) => void;
-
 	lineStyle: LineStyle;
 	onLineStyleChange: (style: LineStyle) => void;
-
 	theme: 'light' | 'dark';
 	onThemeToggle: () => void;
-
+	onZoomIn: () => void;
+	onZoomOut: () => void;
+	onPanLeft: () => void;
+	onPanRight: () => void;
 	onResetZoom: () => void;
 	onExportPng: () => void;
 };
@@ -30,6 +30,10 @@ export const ChartControls: React.FC<Props> = ({
 																								 onLineStyleChange,
 																								 theme,
 																								 onThemeToggle,
+																								 onZoomIn,
+																								 onZoomOut,
+																								 onPanLeft,
+																								 onPanRight,
 																								 onResetZoom,
 																								 onExportPng,
 																							 }) => {
@@ -97,21 +101,65 @@ export const ChartControls: React.FC<Props> = ({
 
 			<div className={styles.block}>
 				<div className={styles.blockTitle}>Тема</div>
-				<button type="button" className={styles.button} onClick={onThemeToggle}>
+				<button
+					type="button"
+					className={styles.button}
+					onClick={onThemeToggle}
+				>
 					{theme === 'light' ? 'Светлая' : 'Тёмная'}
 				</button>
 			</div>
 
 			<div className={styles.block}>
 				<div className={styles.blockTitle}>Масштаб</div>
-				<button type="button" className={styles.button} onClick={onResetZoom}>
+				<div className={styles.zoomRow}>
+					<button
+						type="button"
+						className={styles.buttonSmall}
+						onClick={onZoomOut}
+					>
+						-
+					</button>
+					<button
+						type="button"
+						className={styles.buttonSmall}
+						onClick={onZoomIn}
+					>
+						+
+					</button>
+				</div>
+				<div className={styles.zoomRow}>
+					<button
+						type="button"
+						className={styles.buttonSmall}
+						onClick={onPanLeft}
+					>
+						←
+					</button>
+					<button
+						type="button"
+						className={styles.buttonSmall}
+						onClick={onPanRight}
+					>
+						→
+					</button>
+				</div>
+				<button
+					type="button"
+					className={styles.button}
+					onClick={onResetZoom}
+				>
 					Сбросить
 				</button>
 			</div>
 
 			<div className={styles.block}>
 				<div className={styles.blockTitle}>Экспорт</div>
-				<button type="button" className={styles.button} onClick={onExportPng}>
+				<button
+					type="button"
+					className={styles.button}
+					onClick={onExportPng}
+				>
 					PNG
 				</button>
 			</div>

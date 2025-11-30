@@ -9,7 +9,6 @@ import {
 	Tooltip,
 	XAxis,
 	YAxis,
-	Brush,
 	Legend,
 } from 'recharts';
 import { AggregationMode, ChartPoint, LineStyle, ParsedDataPoint, Variation } from '../../types';
@@ -23,7 +22,6 @@ type Props = {
 	lineStyle: LineStyle;
 	aggregation: AggregationMode;
 	brushRange: { startIndex: number; endIndex: number };
-	onBrushChange: (range: { startIndex: number; endIndex: number }) => void;
 	theme: 'light' | 'dark';
 };
 
@@ -49,13 +47,14 @@ const CustomTooltip: React.FC<{
 
 	const first = payload[0] as any;
 	const index = first?.payload?.index ?? 0;
-
 	const raw = rawParsed[index];
 
 	return (
 		<div className={styles.tooltip}>
 			<div className={styles.tooltipHeader}>
-				{aggregation === 'daily' ? `Дата: ${raw?.date}` : `Период: ${raw?.date}`}
+				{aggregation === 'daily'
+					? `Дата: ${raw?.date}`
+					: `Период: ${raw?.date}`}
 			</div>
 			<div className={styles.tooltipBody}>
 				{selectedKeys.map((key) => {
@@ -94,7 +93,6 @@ export const ConversionChart: React.FC<Props> = ({
 																									 lineStyle,
 																									 aggregation,
 																									 brushRange,
-																									 onBrushChange,
 																									 theme,
 																								 }) => {
 	const visibleData = useMemo(
@@ -205,25 +203,6 @@ export const ConversionChart: React.FC<Props> = ({
 					/>
 					<Legend wrapperStyle={{ color: textColor, fontSize: 12 }} />
 					{renderLines()}
-					<Brush
-						dataKey="dateLabel"
-						startIndex={brushRange.startIndex}
-						endIndex={brushRange.endIndex}
-						height={24}
-						stroke="#8884d8"
-						onChange={(range) => {
-							if (
-								range &&
-								typeof range.startIndex === 'number' &&
-								typeof range.endIndex === 'number'
-							) {
-								onBrushChange({
-									startIndex: range.startIndex,
-									endIndex: range.endIndex,
-								});
-							}
-						}}
-					/>
 				</ChartComponent>
 			</ResponsiveContainer>
 		</div>
