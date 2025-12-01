@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import {FC, useMemo, useRef, useState} from 'react';
 import raw from './data/data.json';
 import {
 	AggregationMode,
@@ -23,7 +23,7 @@ const typedRaw = raw as RawPayload;
 const variations: Variation[] = buildVariations(typedRaw.variations);
 const parsed: ParsedDataPoint[] = parseRawData(typedRaw.data, variations);
 
-const App: React.FC = () => {
+const App: FC = () => {
 	const [aggregation, setAggregation] = useState<AggregationMode>('daily');
 	const [lineStyle, setLineStyle] = useState<LineStyle>('line');
 	const [theme, setTheme] = useState<'light' | 'dark'>('light');

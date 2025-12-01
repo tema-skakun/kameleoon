@@ -45,7 +45,7 @@
 - Расчёт конверсии по формуле:
 
 ``
-conversionRate = conversions/visits×100
+conversionRate = conversions/visits*100
 ``
 
 - Все значения на оси Y и в tooltip отображаются в процентах.
@@ -256,11 +256,4 @@ npm run build
 
 # Превью сборки
 npm run preview
-```
-
-### Деплой
-
-```bash
-# Деплой на GitHub Pages
-npm run deploy
 ```

@@ -1,4 +1,3 @@
-import React from 'react';
 import { AggregationMode, LineStyle, Variation } from '../../types';
 import styles from './ChartControls.module.css';
 
