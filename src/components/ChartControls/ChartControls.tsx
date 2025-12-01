@@ -43,12 +43,14 @@ export const ChartControls: React.FC<Props> = ({
 				<div className={styles.variants}>
 					{variations.map((v) => {
 						const checked = selectedKeys.includes(v.key);
+
 						return (
 							<label key={v.key} className={styles.checkboxLabel}>
 								<input
 									type="checkbox"
 									checked={checked}
 									onChange={() => onToggleVariation(v.key)}
+									aria-checked={checked}
 								/>
 								<span>{v.name}</span>
 							</label>
@@ -59,7 +61,7 @@ export const ChartControls: React.FC<Props> = ({
 
 			<div className={styles.block}>
 				<div className={styles.blockTitle}>Интервал</div>
-				<div className={styles.segmented}>
+				<div className={styles.segmented} role="tablist" aria-label="Интервал данных">
 					<button
 						type="button"
 						className={
@@ -68,6 +70,8 @@ export const ChartControls: React.FC<Props> = ({
 								: styles.segment
 						}
 						onClick={() => onAggregationChange('daily')}
+						role="tab"
+						aria-selected={aggregation === 'daily'}
 					>
 						День
 					</button>
@@ -79,6 +83,8 @@ export const ChartControls: React.FC<Props> = ({
 								: styles.segment
 						}
 						onClick={() => onAggregationChange('weekly')}
+						role="tab"
+						aria-selected={aggregation === 'weekly'}
 					>
 						Неделя
 					</button>
@@ -91,6 +97,7 @@ export const ChartControls: React.FC<Props> = ({
 					className={styles.select}
 					value={lineStyle}
 					onChange={(e) => onLineStyleChange(e.target.value as LineStyle)}
+					aria-label="Стиль линии"
 				>
 					<option value="line">Линия</option>
 					<option value="smooth">Сглаживание</option>
@@ -104,6 +111,8 @@ export const ChartControls: React.FC<Props> = ({
 					type="button"
 					className={styles.button}
 					onClick={onThemeToggle}
+					aria-label="Переключить тему"
+					title="Переключить тему"
 				>
 					{theme === 'light' ? 'Светлая' : 'Тёмная'}
 				</button>
@@ -116,6 +125,8 @@ export const ChartControls: React.FC<Props> = ({
 						type="button"
 						className={styles.buttonSmall}
 						onClick={onZoomOut}
+						aria-label="Уменьшить масштаб"
+						title="Уменьшить масштаб"
 					>
 						-
 					</button>
@@ -123,6 +134,8 @@ export const ChartControls: React.FC<Props> = ({
 						type="button"
 						className={styles.buttonSmall}
 						onClick={onZoomIn}
+						aria-label="Увеличить масштаб"
+						title="Увеличить масштаб"
 					>
 						+
 					</button>
@@ -132,6 +145,8 @@ export const ChartControls: React.FC<Props> = ({
 						type="button"
 						className={styles.buttonSmall}
 						onClick={onPanLeft}
+						aria-label="Сдвинуть окно влево"
+						title="Сдвинуть окно влево"
 					>
 						←
 					</button>
@@ -139,6 +154,8 @@ export const ChartControls: React.FC<Props> = ({
 						type="button"
 						className={styles.buttonSmall}
 						onClick={onPanRight}
+						aria-label="Сдвинуть окно вправо"
+						title="Сдвинуть окно вправо"
 					>
 						→
 					</button>
@@ -147,6 +164,8 @@ export const ChartControls: React.FC<Props> = ({
 					type="button"
 					className={styles.button}
 					onClick={onResetZoom}
+					aria-label="Сбросить масштаб"
+					title="Сбросить масштаб"
 				>
 					Сбросить
 				</button>
@@ -158,6 +177,8 @@ export const ChartControls: React.FC<Props> = ({
 					type="button"
 					className={styles.button}
 					onClick={onExportPng}
+					aria-label="Экспорт диаграммы в PNG"
+					title="Экспорт диаграммы в PNG"
 				>
 					PNG
 				</button>

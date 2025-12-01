@@ -28,7 +28,6 @@ export const parseRawData = (
 
 	return rawData.map((row) => {
 		const dateObj = new Date(row.date);
-
 		const conversionRate: Record<string, number | null> = {};
 
 		keys.forEach((key) => {
@@ -68,11 +67,9 @@ export const aggregateWeekly = (
 
 	parsed.forEach((item, index) => {
 		const bucketIndex = Math.floor(index / 7);
-
 		if (!buckets[bucketIndex]) {
 			buckets[bucketIndex] = { items: [] };
 		}
-
 		buckets[bucketIndex].items.push(item);
 	});
 
@@ -93,7 +90,6 @@ export const aggregateWeekly = (
 			keys.forEach((key) => {
 				const v = item.visits[key] ?? 0;
 				const c = item.conversions[key] ?? 0;
-
 				visitsSum[key] += v;
 				convSum[key] += c;
 			});
@@ -125,19 +121,20 @@ export const buildChartData = (
 	const keys = getVariationKeys(variations);
 
 	return source.map((item, index) => {
-		const point: ChartPoint = {
+		const values: Record<string, number | null> = {};
+
+		keys.forEach((key) => {
+			values[key] = item.conversionRate[key];
+		});
+
+		return {
 			date: item.date,
 			dateLabel:
 				aggregation === 'daily'
 					? formatDateLabel(item.dateObj)
 					: `${formatDateLabel(item.dateObj)}…`,
 			index,
+			values,
 		};
-
-		keys.forEach((key) => {
-			point[key] = item.conversionRate[key];
-		});
-
-		return point;
 	});
 };

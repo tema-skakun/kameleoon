@@ -13,10 +13,7 @@ type Options = {
 	step?: number;
 };
 
-export const useBrush = (
-	totalPoints: number,
-	options: Options = {},
-) => {
+export const useBrush = (totalPoints: number, options: Options = {}) => {
 	const { minPoints = 5, step = 4 } = options;
 
 	const [brushRange, setBrushRange] = useState<BrushRange>(() => ({
@@ -153,6 +150,24 @@ export const useBrush = (
 	const panLeft = useCallback(() => pan('left'), [pan]);
 	const panRight = useCallback(() => pan('right'), [pan]);
 
+	// Явная установка диапазона (для подстройки оси X под выбранные серии)
+	const setRange = useCallback(
+		(startIndex: number, endIndex: number) => {
+			const total = totalPoints;
+			if (total === 0) return;
+
+			let start = Math.max(0, Math.min(startIndex, total - 1));
+			let end = Math.max(0, Math.min(endIndex, total - 1));
+
+			if (end < start) {
+				[start, end] = [end, start];
+			}
+
+			setBrushRange({ startIndex: start, endIndex: end });
+		},
+		[totalPoints],
+	);
+
 	return {
 		brushRange,
 		reset,
@@ -160,5 +175,6 @@ export const useBrush = (
 		zoomOut,
 		panLeft,
 		panRight,
+		setRange,
 	};
 };

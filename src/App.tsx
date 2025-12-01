@@ -1,4 +1,4 @@
-import {FC, useMemo, useRef, useState} from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import raw from './data/data.json';
 import {
 	AggregationMode,
@@ -47,10 +47,11 @@ const App: FC = () => {
 		zoomOut: handleZoomOut,
 		panLeft: handlePanLeft,
 		panRight: handlePanRight,
+		setRange: setBrushRange,
 	} = useBrush(totalPoints);
 
-	const [selectedKeys, setSelectedKeys] = useState<string[]>(
-		() => variations.map((v) => v.key),
+	const [selectedKeys, setSelectedKeys] = useState<string[]>(() =>
+		variations.map((v) => v.key),
 	);
 
 	const chartRef = useRef<HTMLDivElement | null>(null);
@@ -74,16 +75,42 @@ const App: FC = () => {
 
 		const canvas = await html2canvas(chartRef.current);
 		const link = document.createElement('a');
-
 		link.href = canvas.toDataURL('image/png');
 		link.download = 'ab-test-conversion-chart.png';
 		link.click();
 	};
 
+	// Адаптация оси X под выбранные вариации:
+	// находим минимальный диапазон индексов, где есть хоть одно значение
+	useEffect(() => {
+		if (!allChartData.length) return;
+
+		let firstIndex = -1;
+		let lastIndex = -1;
+
+		allChartData.forEach((point, index) => {
+			const hasValue = selectedKeys.some((key) => {
+				const value = point.values[key];
+				return typeof value === 'number';
+			});
+
+			if (hasValue) {
+				if (firstIndex === -1) {
+					firstIndex = index;
+				}
+				lastIndex = index;
+			}
+		});
+
+		if (firstIndex === -1 || lastIndex === -1) {
+			setBrushRange(0, allChartData.length - 1);
+		} else {
+			setBrushRange(firstIndex, lastIndex);
+		}
+	}, [allChartData, selectedKeys, setBrushRange]);
+
 	const rootClassName =
-		theme === 'light'
-			? styles.appRoot
-			: `${styles.appRoot} ${styles.appDark}`;
+		theme === 'light' ? styles.appRoot : `${styles.appRoot} ${styles.appDark}`;
 
 	return (
 		<div className={rootClassName}>

@@ -26,11 +26,9 @@ export type ParsedDataPoint = {
 	conversionRate: Record<string, number | null>;
 };
 
-// Точка для Recharts – по одному полю на вариант
 export type ChartPoint = {
 	date: string;
 	dateLabel: string;
 	index: number; // для Brush
-	// динамические поля: [variationKey]: number | null
-	[variationKey: string]: string | number | null;
+	values: Record<string, number | null>; // key = variationKey
 };

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import {FC, useMemo} from 'react';
 import {
 	Area,
 	AreaChart,
@@ -35,6 +35,12 @@ type Props = {
 
 const colors = ['#3772ff', '#f97316', '#10b981', '#ec4899', '#a855f7'];
 
+const getColorForKey = (key: string, variations: Variation[]): string => {
+	const index = variations.findIndex((v) => v.key === key);
+	const normalizedIndex = index >= 0 ? index : 0;
+	return colors[normalizedIndex % colors.length];
+};
+
 type CustomTooltipProps = TooltipProps<ValueType, NameType> & {
 	selectedKeys: string[];
 	variations: Variation[];
@@ -42,7 +48,7 @@ type CustomTooltipProps = TooltipProps<ValueType, NameType> & {
 	sourceParsed: ParsedDataPoint[];
 };
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({
+const CustomTooltip: FC<CustomTooltipProps> = ({
 																											 active,
 																											 payload,
 																											 selectedKeys,
@@ -53,10 +59,11 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
 	if (!active || !payload || payload.length === 0) return null;
 
 	const first = payload[0];
-	const index = (first?.payload as ChartPoint | undefined)?.index ?? 0;
+	const point = first?.payload as ChartPoint | undefined;
+	const index = point?.index ?? 0;
 	const raw = sourceParsed[index];
 
-	if (!raw) return null;
+	if (!raw || !point) return null;
 
 	return (
 		<div className={styles.tooltip}>
@@ -66,22 +73,23 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
 			<div className={styles.tooltipBody}>
 				{selectedKeys.map((key) => {
 					const variation = variations.find((v) => v.key === key);
-					const item = payload.find((p) => p?.dataKey === key);
+					const value = point.values[key];
 
-					if (!variation || !item || item.value == null) return null;
+					if (!variation || value == null) return null;
 
 					const visits = raw.visits?.[key] ?? 0;
 					const conv = raw.conversions?.[key] ?? 0;
+					const color = getColorForKey(key, variations);
 
 					return (
 						<div key={key} className={styles.tooltipRow}>
 							<div
 								className={styles.tooltipColor}
-								style={{ background: item.color as string }}
+								style={{ background: color }}
 							/>
 							<div className={styles.tooltipName}>{variation.name}</div>
 							<div className={styles.tooltipMetrics}>
-								<span>CR: {(item.value as number).toFixed(2)}%</span>
+								<span>CR: {value.toFixed(2)}%</span>
 								<span>Посещения: {visits}</span>
 								<span>Конверсии: {conv}</span>
 							</div>
@@ -115,8 +123,7 @@ export const ConversionChart: React.FC<Props> = ({
 
 		visibleData.forEach((point) => {
 			selectedKeys.forEach((key) => {
-				const value = point[key];
-
+				const value = point.values[key];
 				if (typeof value === 'number') {
 					if (value < min) min = value;
 					if (value > max) max = value;
@@ -129,23 +136,22 @@ export const ConversionChart: React.FC<Props> = ({
 		}
 
 		const padding = (max - min) * 0.1 || 1;
-
 		return [Math.max(0, min - padding), max + padding];
 	}, [visibleData, selectedKeys]);
 
 	const renderLines = () =>
-		selectedKeys.map((key, index) => {
+		selectedKeys.map((key) => {
 			const variation = variations.find((v) => v.key === key);
 			if (!variation) return null;
 
-			const color = colors[index % colors.length];
+			const color = getColorForKey(key, variations);
 
 			if (lineStyle === 'area') {
 				return (
 					<Area
 						key={key}
 						type="monotone"
-						dataKey={key}
+						dataKey={(point: ChartPoint) => point.values[key]}
 						name={variation.name}
 						stroke={color}
 						fill={color}
@@ -160,7 +166,7 @@ export const ConversionChart: React.FC<Props> = ({
 				<Line
 					key={key}
 					type={lineStyle === 'smooth' ? 'monotone' : 'linear'}
-					dataKey={key}
+					dataKey={(point: ChartPoint) => point.values[key]}
 					name={variation.name}
 					stroke={color}
 					strokeWidth={2}
