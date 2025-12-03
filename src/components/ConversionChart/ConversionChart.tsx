@@ -21,6 +21,7 @@ import {
 	Variation,
 } from '../../types';
 import styles from './ConversionChart.module.css';
+import { IconCalendar, IconTrophy } from '../../icons';
 
 type Props = {
 	data: ChartPoint[];
@@ -63,13 +64,13 @@ type CustomTooltipProps = TooltipProps<ValueType, NameType> & {
 };
 
 const CustomTooltip: FC<CustomTooltipProps> = ({
-																											 active,
-																											 payload,
-																											 selectedKeys,
-																											 variations,
-																											 aggregation,
-																											 sourceParsed,
-																										 }) => {
+																								 active,
+																								 payload,
+																								 selectedKeys,
+																								 variations,
+																								 aggregation,
+																								 sourceParsed,
+																							 }) => {
 	if (!active || !payload || payload.length === 0) return null;
 
 	const first = payload[0];
@@ -79,7 +80,7 @@ const CustomTooltip: FC<CustomTooltipProps> = ({
 
 	if (!raw || !point) return null;
 
-	// формируем список серий с их значениями и сортируем по CR по убыванию
+	// список серий, отсортированный по CR по убыванию
 	const rows = selectedKeys
 		.reduce<{ key: string; name: string; value: number }[]>((acc, key) => {
 			const variation = variations.find((v) => v.key === key);
@@ -101,23 +102,46 @@ const CustomTooltip: FC<CustomTooltipProps> = ({
 
 	if (rows.length === 0) return null;
 
+	const headerText =
+		aggregation === 'daily'
+			? formatTooltipDate(raw.date)
+			: formatTooltipRange(raw.date);
+
 	return (
 		<div className={styles.tooltip}>
 			<div className={styles.tooltipHeader}>
-				{aggregation === 'daily'
-					? `Дата: ${formatTooltipDate(raw.date)}`
-					: `Период: ${formatTooltipRange(raw.date)}`}
+        <span className={styles.tooltipHeaderIcon}>
+          <IconCalendar />
+        </span>
+				<span>{headerText}</span>
 			</div>
 
 			<div className={styles.tooltipBody}>
-				{rows.map((row) => (
-					<div key={row.key} className={styles.tooltipRow}>
-						<span className={styles.tooltipName}>{row.name}</span>
-						<span className={styles.tooltipValue}>
-              {row.value.toFixed(2)}%
-            </span>
-					</div>
-				))}
+				{rows.map((row, idx) => {
+					const color = getColorForKey(row.key, variations);
+					const isTop = idx === 0;
+
+					return (
+						<div key={row.key} className={styles.tooltipRow}>
+							<div className={styles.tooltipRowMain}>
+                <span
+									className={styles.tooltipDot}
+									style={{ background: color }}
+								/>
+								<span className={styles.tooltipName}>{row.name}</span>
+								{isTop && (
+									<span className={styles.tooltipTrophy}>
+                    <IconTrophy />
+                  </span>
+								)}
+							</div>
+
+							<span className={styles.tooltipValue}>
+                {row.value.toFixed(2)}%
+              </span>
+						</div>
+					);
+				})}
 			</div>
 		</div>
 	);

@@ -16,8 +16,23 @@
 }
 
 .tooltipHeader {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-weight: 600;
     margin-bottom: 6px;
+}
+
+.tooltipHeaderIcon {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    color: #9ca3af; /* можно заменить на var, если хочешь */
+}
+
+.tooltipHeaderIcon svg {
+    width: 16px;
+    height: 16px;
 }
 
 .tooltipBody {
@@ -28,16 +43,48 @@
 
 .tooltipRow {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
+}
+
+/* левая часть: точка + имя + (возможный) кубок */
+.tooltipRowMain {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+
+.tooltipDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
 }
 
 .tooltipName {
     font-weight: 500;
     font-size: 12px;
+    white-space: nowrap;
+}
+
+/* кубок у топового варианта */
+.tooltipTrophy {
+    display: inline-flex;
+    margin-left: 2px;
+    color: #facc15; /* жёлтый кубок, можно вынести в переменную */
+}
+
+.tooltipTrophy svg {
+    width: 14px;
+    height: 14px;
 }
 
 .tooltipValue {
     font-size: 12px;
     font-variant-numeric: tabular-nums;
+    margin-left: 8px;
+    white-space: nowrap;
 }
