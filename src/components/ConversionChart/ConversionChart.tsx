@@ -41,6 +41,20 @@ const getColorForKey = (key: string, variations: Variation[]): string => {
 	return colors[normalizedIndex % colors.length];
 };
 
+const formatTooltipDate = (dateStr: string): string => {
+	// ожидаем формат YYYY-MM-DD
+	const [year, month, day] = dateStr.split('-');
+	if (!year || !month || !day) return dateStr;
+	return `${day}/${month}/${year}`;
+};
+
+const formatTooltipRange = (rangeStr: string): string => {
+	// ожидаем формат "YYYY-MM-DD – YYYY-MM-DD"
+	const [from, to] = rangeStr.split(' – ');
+	if (!from || !to) return rangeStr;
+	return `${formatTooltipDate(from)} – ${formatTooltipDate(to)}`;
+};
+
 type CustomTooltipProps = TooltipProps<ValueType, NameType> & {
 	selectedKeys: string[];
 	variations: Variation[];
@@ -65,37 +79,45 @@ const CustomTooltip: FC<CustomTooltipProps> = ({
 
 	if (!raw || !point) return null;
 
+	// формируем список серий с их значениями и сортируем по CR по убыванию
+	const rows = selectedKeys
+		.reduce<{ key: string; name: string; value: number }[]>((acc, key) => {
+			const variation = variations.find((v) => v.key === key);
+			const value = point.values[key];
+
+			if (!variation || value == null) {
+				return acc;
+			}
+
+			acc.push({
+				key,
+				name: variation.name,
+				value,
+			});
+
+			return acc;
+		}, [])
+		.sort((a, b) => b.value - a.value);
+
+	if (rows.length === 0) return null;
+
 	return (
 		<div className={styles.tooltip}>
 			<div className={styles.tooltipHeader}>
-				{aggregation === 'daily' ? `Дата: ${raw.date}` : `Период: ${raw.date}`}
+				{aggregation === 'daily'
+					? `Дата: ${formatTooltipDate(raw.date)}`
+					: `Период: ${formatTooltipRange(raw.date)}`}
 			</div>
+
 			<div className={styles.tooltipBody}>
-				{selectedKeys.map((key) => {
-					const variation = variations.find((v) => v.key === key);
-					const value = point.values[key];
-
-					if (!variation || value == null) return null;
-
-					const visits = raw.visits?.[key] ?? 0;
-					const conv = raw.conversions?.[key] ?? 0;
-					const color = getColorForKey(key, variations);
-
-					return (
-						<div key={key} className={styles.tooltipRow}>
-							<div
-								className={styles.tooltipColor}
-								style={{ background: color }}
-							/>
-							<div className={styles.tooltipName}>{variation.name}</div>
-							<div className={styles.tooltipMetrics}>
-								<span>CR: {value.toFixed(2)}%</span>
-								<span>Посещения: {visits}</span>
-								<span>Конверсии: {conv}</span>
-							</div>
-						</div>
-					);
-				})}
+				{rows.map((row) => (
+					<div key={row.key} className={styles.tooltipRow}>
+						<span className={styles.tooltipName}>{row.name}</span>
+						<span className={styles.tooltipValue}>
+              {row.value.toFixed(2)}%
+            </span>
+					</div>
+				))}
 			</div>
 		</div>
 	);

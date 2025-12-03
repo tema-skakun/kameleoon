@@ -27,17 +27,9 @@
 }
 
 .tooltipRow {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
-    column-gap: 6px;
-}
-
-.tooltipColor {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    margin-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
 }
 
 .tooltipName {
@@ -45,10 +37,7 @@
     font-size: 12px;
 }
 
-.tooltipMetrics {
-    grid-column: 1 / span 2;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    opacity: 0.9;
+.tooltipValue {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
 }
