@@ -27,7 +27,7 @@
     display: inline-flex;
     width: 16px;
     height: 16px;
-    color: #9ca3af; /* можно заменить на var, если хочешь */
+    color: #9ca3af;
 }
 
 .tooltipHeaderIcon svg {
@@ -74,7 +74,7 @@
 .tooltipTrophy {
     display: inline-flex;
     margin-left: 2px;
-    color: #facc15; /* жёлтый кубок, можно вынести в переменную */
+    color: #facc15;
 }
 
 .tooltipTrophy svg {
